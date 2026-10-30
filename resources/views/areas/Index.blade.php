@@ -1,38 +1,82 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-4">
+    <div class="container py-4">
+
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Lista de Áreas</h1>
-            <a href="{{ route('areas.create') }}" class="btn btn-primary">Nueva Área</a>
+            <h1 class="fw-bold text-dark">Lista de Áreas</h1>
+
+            <a href="{{ route('areas.create') }}" class="btn btn-success shadow-sm">
+                <i class="bi bi-plus-circle"></i> Nueva Área
+            </a>
         </div>
 
-        <table class="table table-bordered table-striped">
-            <thead class="thead-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach ($areas as $area)
-                <tr>
-                    <td>{{ $area['id'] ?? $area['id_area'] }}</td>
-                    <td>{{ $area['name'] }}</td>
-                    <td>
-                        <a href="{{ route('areas.show', $area['id'] ?? $area['id_area']) }}" class="btn btn-info btn-sm">Ver</a>
-                        <a href="{{ route('areas.edit', $area['id'] ?? $area['id_area']) }}" class="btn btn-warning btn-sm">Editar</a>
-                        
-                        <form action="{{ route('areas.destroy', $area['id'] ?? $area['id_area']) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Desea eliminar esta área?')">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
+        <div class="card shadow-lg border-0 rounded-4">
+
+            <div class="card-header text-white" style="background-color: #25c72f;">
+                <h5 class="mb-0">Áreas Registradas</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @forelse ($areas as $area)
+                                @php
+                                    $id = $area->id ?? $area['id'] ?? $area['id_area'] ?? '';
+                                    $name = $area->name ?? $area['name'] ?? '';
+                                @endphp
+                                <tr>
+                                    <td>{{ $id }}</td>
+                                    
+                                    <td class="fw-semibold">
+                                        {{ $name }}
+                                    </td>
+
+                                    <td class="text-center">
+                                        <a href="{{ route('areas.show', $id) }}" class="btn btn-info btn-sm text-white me-1">
+                                            Mostrar
+                                        </a>
+
+                                        <a href="{{ route('areas.edit', $id) }}" class="btn btn-warning btn-sm text-white me-1">
+                                            Editar
+                                        </a>
+
+                                        <form action="{{ route('areas.destroy', $id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar esta área?')">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-4">
+                                        No hay áreas registradas actualmente.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 @endsection

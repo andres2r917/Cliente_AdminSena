@@ -9,8 +9,9 @@
                     <i class="fas fa-graduation-cap me-2"></i>AdminSENA
                 </h5>
                 <p class="text-secondary small">
-                    Sistema para consultar las áreas, los centros de formación y los equipos tecnológicos del Centro de Formación SENA.
+                    Sistema de gestión integral para la administración de aprendices, instructores, programas de formación y equipos tecnológicos del Centro de Formación SENA.
                 </p>
+                <!-- Redes Sociales -->
                 <div class="mt-3">
                     <a href="https://facebook.com" target="_blank" class="btn btn-outline-light btn-sm rounded-circle me-2"><i class="fab fa-facebook-f"></i></a>
                     <a href="https://twitter.com" target="_blank" class="btn btn-outline-light btn-sm rounded-circle me-2"><i class="fab fa-twitter"></i></a>
@@ -19,24 +20,28 @@
                 </div>
             </div>
 
-            <!-- Columna 2: solo los módulos que existen en el cliente -->
+            <!-- Columna 2: Enlaces Rápidos del Sistema -->
             <div class="col-lg-4 col-md-6">
                 <h5 class="fw-bold mb-3 text-light">Módulos del Sistema</h5>
                 <ul class="list-unstyled small">
                     <li class="mb-2">
-                        {{-- CAMBIO: route('home') no existe en el cliente, se llama home.index --}}
-                        <a href="{{ route('home.index') }}" class="text-secondary text-decoration-none hover-white">
+                        <a href="{{ route('home') }}" class="text-secondary text-decoration-none hover-white">
                             <i class="fas fa-chevron-right me-1 small" style="color:#39a900;"></i> Inicio
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="{{ route('areas.index') }}" class="text-secondary text-decoration-none">
-                            <i class="fas fa-chevron-right me-1 small" style="color:#39a900;"></i> Áreas
+                        <a href="{{ route('apprentice.index') }}" class="text-secondary text-decoration-none">
+                            <i class="fas fa-chevron-right me-1 small" style="color:#39a900;"></i> Aprendices
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="{{ route('trainingcenters.index') }}" class="text-secondary text-decoration-none">
-                            <i class="fas fa-chevron-right me-1 small" style="color:#39a900;"></i> Centros de Formación
+                        <a href="{{ route('teacher.index') }}" class="text-secondary text-decoration-none">
+                            <i class="fas fa-chevron-right me-1 small" style="color:#39a900;"></i> Instructores
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{{ route('course.index') }}" class="text-secondary text-decoration-none">
+                            <i class="fas fa-chevron-right me-1 small" style="color:#39a900;"></i> Programas y Cursos
                         </a>
                     </li>
                     <li class="mb-2">
@@ -70,6 +75,7 @@
 
         <hr class="border-secondary my-4">
 
+        <!-- Línea Inferior de Derechos Reservados -->
         <div class="row align-items-center small text-secondary">
             <div class="col-md-6 text-center text-md-start">
                 <p class="mb-0">&copy; {{ date('Y') }} <strong style="color:#39a900;">AdminSENA</strong>. Todos los derechos reservados.</p>

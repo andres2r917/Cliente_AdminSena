@@ -7,20 +7,13 @@ use Illuminate\Http\Request;
 
 class AreasController extends Controller
 {
-    // Método privado para manejar llamadas HTTP repetitivas
-    private function fetchDataFromApi($url)
-    {
-        $response = Http::acceptJson()->get($url);
-        return $response->json();
-    }
-
-    public function index()   // http://admin-sena.test/api/areas
+    public function index()   
     {
         $url = env('URL_SERVER_API');
 
         $areas = $this->fetchDataFromApi($url . '/areas');
 
-        return view('areas.index', compact('areas'));
+        return view('areas.index', ['areas' => $areas, 'area' => $areas]);
     }
 
     public function show($id)
@@ -29,7 +22,7 @@ class AreasController extends Controller
 
         $area = $this->fetchDataFromApi($url . '/areas/' . $id);
 
-        return view('areas.show', compact('area'));
+        return view('areas.show', ['area' => $area, 'areas' => $area]);
     }
 
     public function create()
@@ -52,7 +45,7 @@ class AreasController extends Controller
 
         $area = $this->fetchDataFromApi($url . '/areas/' . $id);
 
-        return view('areas.edit', compact('area'));
+        return view('areas.edit', ['area' => $area, 'areas' => $area]);
     }
 
     public function update(Request $request, $id)
@@ -73,3 +66,4 @@ class AreasController extends Controller
         return redirect()->route('areas.index');
     }
 }
+

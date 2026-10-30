@@ -7,14 +7,7 @@ use Illuminate\Http\Request;
 
 class ComputerController extends Controller
 {
-    // Método privado para manejar llamadas HTTP repetitivas
-    private function fetchDataFromApi($url)
-    {
-        $response = Http::acceptJson()->get($url);
-        return $response->json();
-    }
-
-    public function index()   // http://admin-sena.test/api/computers
+    public function index()
     {
         $url = env('URL_SERVER_API');
 
@@ -29,39 +22,71 @@ class ComputerController extends Controller
 
         $computer = $this->fetchDataFromApi($url . '/computers/' . $id);
 
-        return view('computers.show', compact('computer'));
+        return view('computers.show', [
+            'computer'  => $computer,
+            'computers' => $computer,
+        ]);
     }
 
     public function create()
     {
-        return view('computers.create');
+        $url = env('URL_SERVER_API');
+
+        $environments = $this->fetchDataFromApi($url . '/environments');
+
+        return view('computers.create', compact('environments'));
     }
 
     public function store(Request $request)
     {
-        $url = env('URL_SERVER_API');
+        $url    = env('URL_SERVER_API');
+        $fields = $request->except('imagen');
+        $files  = $request->hasFile('imagen') ? ['imagen' => $request->file('imagen')] : [];
 
-        Http::acceptJson()->post($url . '/computers', $request->all());
+        $response = $this->multipartRequest('POST', $url . '/computers', $fields, $files);
 
-        return redirect()->route('computers.index');
+        if ($response->status() === 422) {
+            return back()->withErrors($response->json('errors') ?? ['error' => $response->body()])->withInput();
+        }
+
+        if (!$response->successful()) {
+            return back()->withErrors(['error' => 'Error al guardar el computador (' . $response->status() . '): ' . $response->body()])->withInput();
+        }
+
+        return redirect()->route('computers.index')->with('success', 'Computador registrado correctamente.');
     }
 
     public function edit($id)
     {
         $url = env('URL_SERVER_API');
 
-        $computer = $this->fetchDataFromApi($url . '/computers/' . $id);
+        $computer     = $this->fetchDataFromApi($url . '/computers/' . $id);
+        $environments = $this->fetchDataFromApi($url . '/environments');
 
-        return view('computers.edit', compact('computer'));
+        return view('computers.edit', [
+            'computer'     => $computer,
+            'computers'    => $computer,
+            'environments' => $environments,
+        ]);
     }
 
     public function update(Request $request, $id)
     {
-        $url = env('URL_SERVER_API');
+        $url    = env('URL_SERVER_API');
+        $fields = array_merge($request->except('imagen'), ['_method' => 'PUT']);
+        $files  = $request->hasFile('imagen') ? ['imagen' => $request->file('imagen')] : [];
 
-        Http::acceptJson()->put($url . '/computers/' . $id, $request->all());
+        $response = $this->multipartRequest('POST', $url . '/computers/' . $id, $fields, $files);
 
-        return redirect()->route('computers.index');
+        if ($response->status() === 422) {
+            return back()->withErrors($response->json('errors') ?? ['error' => $response->body()])->withInput();
+        }
+
+        if (!$response->successful()) {
+            return back()->withErrors(['error' => 'Error al actualizar el computador (' . $response->status() . '): ' . $response->body()])->withInput();
+        }
+
+        return redirect()->route('computers.index')->with('success', 'Computador actualizado correctamente.');
     }
 
     public function destroy($id)

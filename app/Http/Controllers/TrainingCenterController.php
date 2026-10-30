@@ -7,29 +7,27 @@ use Illuminate\Http\Request;
 
 class TrainingCenterController extends Controller
 {
-    // Método privado para manejar llamadas HTTP repetitivas
-    private function fetchDataFromApi($url)
-    {
-        $response = Http::acceptJson()->get($url);
-        return $response->json();
-    }
-
-    public function index()   // http://admin-sena.test/api/training-centers
+    public function index()   
     {
         $url = env('URL_SERVER_API');
-
         $trainingcenters = $this->fetchDataFromApi($url . '/training-centers');
 
-        return view('trainingcenters.index', compact('trainingcenters'));
+        return view('trainingcenters.index', [
+            'trainingcenters'  => $trainingcenters,
+            'Training_centers' => $trainingcenters,
+        ]);
     }
 
     public function show($id)
     {
         $url = env('URL_SERVER_API');
-
         $trainingcenter = $this->fetchDataFromApi($url . '/training-centers/' . $id);
 
-        return view('trainingcenters.show', compact('trainingcenter'));
+        return view('trainingcenters.show', [
+            'trainingcenter'   => $trainingcenter,
+            'Training_centers' => $trainingcenter,
+            'trainingCenter'   => $trainingcenter,
+        ]);
     }
 
     public function create()
@@ -39,9 +37,30 @@ class TrainingCenterController extends Controller
 
     public function store(Request $request)
     {
-        $url = env('URL_SERVER_API');
+        // Validar los campos y la imagen obligatoria
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'imagen'   => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ]);
 
-        Http::acceptJson()->post($url . '/training-centers', $request->all());
+        $url = env('URL_SERVER_API');
+        $file = $request->file('imagen');
+
+        // Enviar datos e imagen adjunta a la API
+        $response = Http::acceptJson()->attach(
+            'imagen',
+            file_get_contents($file->getRealPath()),
+            $file->getClientOriginalName()
+        )->post($url . '/training-centers', [
+            'name'     => $request->name,
+            'location' => $request->location,
+        ]);
+
+        // Si la API devuelve un error de validación (422), regresamos con los errores
+        if ($response->status() === 422) {
+            return back()->withErrors($response->json('errors'))->withInput();
+        }
 
         return redirect()->route('trainingcenters.index');
     }
@@ -49,17 +68,50 @@ class TrainingCenterController extends Controller
     public function edit($id)
     {
         $url = env('URL_SERVER_API');
-
         $trainingcenter = $this->fetchDataFromApi($url . '/training-centers/' . $id);
 
-        return view('trainingcenters.edit', compact('trainingcenter'));
+        return view('trainingcenters.edit', [
+            'trainingcenter'   => $trainingcenter,
+            'Training_centers' => $trainingcenter,
+        ]);
     }
 
     public function update(Request $request, $id)
     {
-        $url = env('URL_SERVER_API');
+        // Validar los campos y la imagen opcional (nullable)
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'imagen'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ]);
 
-        Http::acceptJson()->put($url . '/training-centers/' . $id, $request->all());
+        $url = env('URL_SERVER_API');
+        $endpoint = $url . '/training-centers/' . $id;
+
+        // PHP no lee archivos en peticiones PUT directas, por lo que usamos POST simulando _method => PUT
+        $data = [
+            '_method'  => 'PUT',
+            'name'     => $request->name,
+            'location' => $request->location,
+        ];
+
+        $http = Http::acceptJson()->asMultipart();
+
+        // Si el usuario seleccionó una nueva imagen, la adjuntamos
+        if ($request->hasFile('imagen')) {
+            $file = $request->file('imagen');
+            $http->attach(
+                'imagen',
+                file_get_contents($file->getRealPath()),
+                $file->getClientOriginalName()
+            );
+        }
+
+        $response = $http->post($endpoint, $data);
+
+        if ($response->status() === 422) {
+            return back()->withErrors($response->json('errors'))->withInput();
+        }
 
         return redirect()->route('trainingcenters.index');
     }

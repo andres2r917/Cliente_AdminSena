@@ -2,17 +2,19 @@
 
 @section('content')
     <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Lista de Computadores</h1>
-            <a href="{{ route('computers.create') }}" class="btn btn-primary">Nuevo Computador</a>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Lista de Computadores</h1>
+        <a href="{{ route('computers.create') }}" class="btn text-white rounded-pill px-3 shadow-sm" style="background-color: #39A900;">Nuevo Computador</a>
+    </div>
 
         <table class="table table-bordered table-striped">
             <thead class="thead-dark">
                 <tr>
                     <th>ID</th>
+                    <th>Imagen</th>
                     <th>Número</th>
                     <th>Marca</th>
+                    <th>Ambiente ID</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -20,12 +22,19 @@
                 @foreach ($computers as $item)
                     <tr>
                         <td>{{ $item['id'] ?? $item['id_computer'] }}</td>
+                        <td>
+                            @if(!empty($item['imagen_url']))
+                                <img src="{{ $item['imagen_url'] }}" alt="Imagen" width="80" class="img-thumbnail">
+                            @else
+                                <span>Sin imagen</span>
+                            @endif
+                        </td>
                         <td>{{ $item['number'] }}</td>
                         <td>{{ $item['brand'] }}</td>
+                        <td>{{ $item['environment_id'] ?? 'N/A' }}</td>
                         <td>
                             <a href="{{ route('computers.show', $item['id'] ?? $item['id_computer']) }}" class="btn btn-info btn-sm text-white">Ver más</a>
                             <a href="{{ route('computers.edit', $item['id'] ?? $item['id_computer']) }}" class="btn btn-warning btn-sm">Editar</a>
-                            
                             <form action="{{ route('computers.destroy', $item['id'] ?? $item['id_computer']) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
